@@ -1,0 +1,311 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-05-10 16:14:09.267338",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "passenger",
+  "natationality",
+  "pax_name",
+  "payment_date",
+  "column_break_3",
+  "pnr",
+  "eticket",
+  "airline_company_code",
+  "airline_company",
+  "payment_mode",
+  "routing_section",
+  "departure_date",
+  "column_break_11",
+  "departure_routing",
+  "column_break_10",
+  "departure_flight_no",
+  "column_break_12",
+  "back_date",
+  "column_break_14",
+  "back_routing",
+  "column_break_16",
+  "back_flight_no",
+  "amounts_section",
+  "fare_amount",
+  "currency",
+  "refund_amount",
+  "column_break_20",
+  "tax_amount",
+  "conversion_rate",
+  "total_amount",
+  "column_break_22",
+  "charge_amount",
+  "sales",
+  "price_list",
+  "column_break_24",
+  "modify_amount",
+  "price_list_currency",
+  "commission_section",
+  "supp_com",
+  "sales_com",
+  "column_break_40",
+  "user",
+  "user_commission",
+  "items_section",
+  "items"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "passenger",
+   "fieldtype": "Link",
+   "label": "passenger",
+   "options": "passenger name"
+  },
+  {
+   "fieldname": "natationality",
+   "fieldtype": "Data",
+   "label": "NATATIONALITY"
+  },
+  {
+   "fieldname": "pax_name",
+   "fieldtype": "Data",
+   "label": "Pax Name"
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "payment date"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pnr",
+   "fieldtype": "Data",
+   "label": "PNR"
+  },
+  {
+   "fieldname": "eticket",
+   "fieldtype": "Data",
+   "label": "E.ticket"
+  },
+  {
+   "fieldname": "airline_company_code",
+   "fieldtype": "Link",
+   "label": "code",
+   "options": "Airline Code"
+  },
+  {
+   "fetch_from": "code.airline_company",
+   "fieldname": "airline_company",
+   "fieldtype": "Data",
+   "label": "Airline company"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "payment mode",
+   "options": "Mode of Payment"
+  },
+  {
+   "fieldname": "routing_section",
+   "fieldtype": "Section Break",
+   "label": "Routing"
+  },
+  {
+   "fieldname": "departure_date",
+   "fieldtype": "Date",
+   "label": "Departure Date"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "departure_routing",
+   "fieldtype": "Data",
+   "label": "Departure Routing "
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "departure_flight_no",
+   "fieldtype": "Data",
+   "label": "Departure Flight No "
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "back_date",
+   "fieldtype": "Date",
+   "label": "Back Date"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "back_routing",
+   "fieldtype": "Data",
+   "label": "Back Routing "
+  },
+  {
+   "fieldname": "column_break_16",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "back_flight_no",
+   "fieldtype": "Data",
+   "label": " Back Flight No"
+  },
+  {
+   "fieldname": "amounts_section",
+   "fieldtype": "Section Break",
+   "label": "Amounts"
+  },
+  {
+   "fieldname": "fare_amount",
+   "fieldtype": "Float",
+   "label": "Fare Amount"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "currency ",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "refund_amount",
+   "fieldtype": "Float",
+   "label": "Refund amount"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Float",
+   "label": "Tax Amount"
+  },
+  {
+   "fieldname": "conversion_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Float",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "charge_amount",
+   "fieldtype": "Float",
+   "label": "Charge Amount"
+  },
+  {
+   "fieldname": "sales",
+   "fieldtype": "Float",
+   "label": "sales"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "modify_amount",
+   "fieldtype": "Float",
+   "label": "Modify Amount"
+  },
+  {
+   "fieldname": "price_list_currency",
+   "fieldtype": "Link",
+   "label": "Price List Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "commission_section",
+   "fieldtype": "Section Break",
+   "label": "Commission "
+  },
+  {
+   "fieldname": "supp_com",
+   "fieldtype": "Percent",
+   "label": "SUPP COM%"
+  },
+  {
+   "fieldname": "sales_com",
+   "fieldtype": "Percent",
+   "label": "SALES COM%"
+  },
+  {
+   "fieldname": "column_break_40",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "user_commission",
+   "fieldtype": "Data",
+   "label": "user commission "
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Items"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "items",
+   "options": "Sales Invoice Item"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-05-10 16:14:09.267338",
+ "modified_by": "Administrator",
+ "module": "Pivottech Alramat",
+ "name": "ticket Entry",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
