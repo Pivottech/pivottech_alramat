@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include pivottech_alramat *.css
+recursive-include pivottech_alramat *.csv
+recursive-include pivottech_alramat *.html
+recursive-include pivottech_alramat *.ico
+recursive-include pivottech_alramat *.js
+recursive-include pivottech_alramat *.json
+recursive-include pivottech_alramat *.md
+recursive-include pivottech_alramat *.png
+recursive-include pivottech_alramat *.py
+recursive-include pivottech_alramat *.svg
+recursive-include pivottech_alramat *.txt
+recursive-exclude pivottech_alramat *.pyc
