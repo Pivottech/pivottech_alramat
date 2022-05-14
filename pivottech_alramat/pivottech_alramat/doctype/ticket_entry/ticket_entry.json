@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2022-05-10 16:14:09.267338",
+ "creation": "2022-05-14 12:38:01.808413",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -287,7 +287,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-10 16:14:09.267338",
+ "modified": "2022-05-14 12:38:01.808413",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",

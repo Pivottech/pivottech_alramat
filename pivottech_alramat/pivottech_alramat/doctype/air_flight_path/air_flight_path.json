@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:air_flight_path",
+ "creation": "2022-05-14 12:37:07.550842",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "air_flight_path",
+  "code",
+  "from",
+  "to",
+  "more_info",
+  "suppcom"
+ ],
+ "fields": [
+  {
+   "fieldname": "air_flight_path",
+   "fieldtype": "Data",
+   "label": "Air flight path ",
+   "unique": 1
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code"
+  },
+  {
+   "fieldname": "from",
+   "fieldtype": "Data",
+   "label": "From"
+  },
+  {
+   "fieldname": "to",
+   "fieldtype": "Data",
+   "label": "To"
+  },
+  {
+   "fieldname": "more_info",
+   "fieldtype": "Data",
+   "label": "More Info"
+  },
+  {
+   "fieldname": "suppcom",
+   "fieldtype": "Percent",
+   "label": "SUPPCOM"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-05-14 12:37:07.550842",
+ "modified_by": "Administrator",
+ "module": "Pivottech Alramat",
+ "name": "Air flight path",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
