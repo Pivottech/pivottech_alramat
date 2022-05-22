@@ -8,7 +8,8 @@
  "engine": "InnoDB",
  "field_order": [
   "passenger",
-  "no"
+  "no",
+  "nationality"
  ],
  "fields": [
   {
@@ -21,11 +22,16 @@
    "fieldname": "no",
    "fieldtype": "Data",
    "label": "no"
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Data",
+   "label": "Nationality "
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-14 15:21:19.217845",
+ "modified": "2022-05-15 10:41:44.884125",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "passenger name",

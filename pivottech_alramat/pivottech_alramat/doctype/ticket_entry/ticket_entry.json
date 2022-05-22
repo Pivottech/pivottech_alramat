@@ -120,7 +120,7 @@
   },
   {
    "fieldname": "departure_date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "label": "Departure Date"
   },
   {
@@ -147,7 +147,7 @@
   },
   {
    "fieldname": "back_date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "label": "Back Date"
   },
   {
@@ -264,9 +264,8 @@
   },
   {
    "fieldname": "user",
-   "fieldtype": "Link",
-   "label": "User",
-   "options": "User"
+   "fieldtype": "Data",
+   "label": "User"
   },
   {
    "fieldname": "user_commission",
@@ -287,7 +286,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-14 12:38:01.808413",
+ "modified": "2022-05-21 17:30:15.104036",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",
