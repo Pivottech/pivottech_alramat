@@ -34,6 +34,15 @@ class ticketEntry(Document):
 			self.back_routing = self.back_routing.strip()[:-3] + routing if self.back_routing else routing
 		else:
 			self.departure_routing = self.departure_routing.strip()[:-3] + routing if self.departure_routing else routing
+	
+	def handle_routing(self, last_routing, routing):
+		route = routing.split(" ")
+		route.reverse()
+		if route[0] == "CNX":
+			return last_routing
+
+		self.insert_route(route, reverse_routing(last_routing))
+		return route[2]
 			
 @frappe.whitelist()
 def insert_tickets(filepath):
@@ -66,7 +75,7 @@ def insert_tickets(filepath):
 			routings = d.routing.split(";")
 			last_routing = None
 			for r in routings:
-				last_routing = handle_routing(ticket_entry, last_routing, r.strip())
+				last_routing = ticket_entry.handle_routing(last_routing, r.strip())
 			#standard fields
 			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "modify_amount", "total_amount", "sales", "pax_name", "natationality"]
 			for sf in standard_fields:
@@ -126,15 +135,6 @@ def generate_data_from_excel(file_doc, extension, as_dict=False):
 			data.append(row)
 
 	return data
-
-def handle_routing(ticket_entry, last_routing, routing):
-	route = routing.split(" ")
-	route.reverse()
-	if route[0] == "CNX":
-		return last_routing
-
-	ticket_entry.insert_route(route, reverse_routing(last_routing))
-	return route[2]
 	
 
 
