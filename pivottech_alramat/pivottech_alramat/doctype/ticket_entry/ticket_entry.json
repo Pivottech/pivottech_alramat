@@ -1,21 +1,25 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field.eticket",
  "creation": "2022-05-14 12:38:01.808413",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "pnr",
   "customer",
+  "column_break_3",
   "passenger",
   "natationality",
-  "pax_name",
-  "payment_date",
-  "column_break_3",
-  "pnr",
+  "column_break_6",
   "eticket",
+  "pax_name",
+  "column_break_9",
   "airline_company_code",
   "airline_company",
+  "column_break_49",
+  "payment_date",
   "payment_mode",
   "routing_section",
   "departure_date",
@@ -69,7 +73,7 @@
   {
    "fieldname": "natationality",
    "fieldtype": "Data",
-   "label": "NATATIONALITY"
+   "label": "Nationality "
   },
   {
    "fieldname": "pax_name",
@@ -88,12 +92,14 @@
   {
    "fieldname": "pnr",
    "fieldtype": "Data",
-   "label": "PNR"
+   "label": "PNR",
+   "unique": 1
   },
   {
    "fieldname": "eticket",
    "fieldtype": "Data",
-   "label": "E.ticket"
+   "label": "E.ticket",
+   "unique": 1
   },
   {
    "fieldname": "airline_company_code",
@@ -282,11 +288,23 @@
    "fieldtype": "Table",
    "label": "items",
    "options": "Sales Invoice Item"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_49",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-21 17:30:15.104036",
+ "modified": "2022-05-24 14:06:29.898886",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",
@@ -306,5 +324,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "title_field": "pnr"
 }

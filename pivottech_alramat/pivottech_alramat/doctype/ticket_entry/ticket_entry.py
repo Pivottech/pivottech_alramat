@@ -50,10 +50,10 @@ def insert_tickets(filepath):
 	count = 0
 	for row in data:
 		count += 1
-		frappe.publish_progress(count*100/len(data), title=_("Importing Ticket Entries"), description = row["pnr"])
 		d = frappe._dict(row)
 		ticket_entry = frappe.new_doc("ticket Entry")
 		if d.pnr:
+			frappe.publish_progress(count*100/len(data), title=_("Importing Ticket Entries"), description = d.pnr)
 			d.e_ticket = str(d.e_ticket)
 			e_tickets = d.e_ticket.split("-")
 			etickets_float = [flt(et[3:],0) for et in e_tickets]
@@ -68,7 +68,7 @@ def insert_tickets(filepath):
 				frappe.get_doc({
 					"doctype": "passenger name",
 					"passenger": d.passenger_name,
-					"nationality": d.natationality
+					"nationality": d.natationality if d.natationality else ""
 				}).insert()
 			ticket_entry.passenger = d.passenger_name
 			#routing
@@ -77,9 +77,10 @@ def insert_tickets(filepath):
 			for r in routings:
 				last_routing = ticket_entry.handle_routing(last_routing, r.strip())
 			#standard fields
-			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "modify_amount", "total_amount", "sales", "pax_name", "natationality"]
+			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "modify_amount", "total_amount", "sales", "pax_name", "natationality", "sales_com"]
 			for sf in standard_fields:
-				setattr(ticket_entry, sf, d[sf])
+				if sf in d:
+					setattr(ticket_entry, sf, d[sf])
 			#non standard fields
 			if type(d.payment_date) is not str:
 				ticket_entry.payment_date = add_days("1/1/1900", d.payment_date-2)
@@ -87,12 +88,11 @@ def insert_tickets(filepath):
 				formatdate(d.payment_date, "dd-MMM-yy")
 			ticket_entry.user = d.user_name
 			ticket_entry.refund_amount = d.re_found_amount
-			ticket_entry.supp_com = d["supp_com%"]
-			ticket_entry.sales_com = d["sales_com%"]
+			ticket_entry.supp_com = d["com%"]
 			ticket_entry.currency = d["curr."]
 			ticket_entry.conversion_rate = d.rate
-
 			ticket_entry.insert()
+	frappe.publish_progress(100, title=_("Importing Ticket Entries"))
 			
 			
 
@@ -120,7 +120,7 @@ def generate_data_from_excel(file_doc, extension, as_dict=False):
 		rows = read_xlsx_file_from_attached_file(fcontent=content)
 	elif extension == "xls":
 		rows = read_xls_file_from_attached_file(content)
-
+	remove_extra_rows(rows)
 	data = []
 	headers = rows[0]
 	del rows[0]
@@ -135,7 +135,17 @@ def generate_data_from_excel(file_doc, extension, as_dict=False):
 			data.append(row)
 
 	return data
-	
+
+def remove_extra_rows(rows):
+	index = -1
+	for i in range(len(rows)):
+		if check_if_header(rows[i]):
+			index = i
+			break
+	del rows[:index]		
+
+def check_if_header(row):
+	return "PNR" in row and "E-Ticket" in row and "Passenger Name" in row
 
 
 	
