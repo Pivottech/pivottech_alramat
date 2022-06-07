@@ -14,6 +14,7 @@
   "natationality",
   "column_break_6",
   "eticket",
+  "pax_name_type",
   "pax_name",
   "column_break_9",
   "airline_company_code",
@@ -25,6 +26,7 @@
   "departure_date",
   "column_break_11",
   "departure_routing",
+  "refund",
   "column_break_10",
   "departure_flight_no",
   "column_break_12",
@@ -77,8 +79,9 @@
   },
   {
    "fieldname": "pax_name",
-   "fieldtype": "Data",
-   "label": "Pax Name"
+   "fieldtype": "Dynamic Link",
+   "label": "Pax Name",
+   "options": "pax_name_type"
   },
   {
    "fieldname": "payment_date",
@@ -92,8 +95,7 @@
   {
    "fieldname": "pnr",
    "fieldtype": "Data",
-   "label": "PNR",
-   "unique": 1
+   "label": "PNR"
   },
   {
    "fieldname": "eticket",
@@ -300,11 +302,24 @@
   {
    "fieldname": "column_break_49",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pax_name_type",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Pax Name Type",
+   "options": "Pax name\nCustomer"
+  },
+  {
+   "default": "0",
+   "fieldname": "refund",
+   "fieldtype": "Check",
+   "label": "Refund"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-24 14:06:29.898886",
+ "modified": "2022-06-04 12:51:57.550985",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",

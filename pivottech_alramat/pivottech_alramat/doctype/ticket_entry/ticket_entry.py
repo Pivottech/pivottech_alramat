@@ -38,11 +38,29 @@ class ticketEntry(Document):
 	def handle_routing(self, last_routing, routing):
 		route = routing.split(" ")
 		route.reverse()
-		if route[0] == "CNX":
+		if route[0] == "CNX" and not self.cancelled:
 			return last_routing
 
 		self.insert_route(route, reverse_routing(last_routing))
 		return route[2]
+
+	def check_void_or_refund(self, routing):
+		routings = routing.split(";")
+		has_cnx = has_cnf = False
+		for r in routings:
+			sub_route_arr = r.strip().split(" ")
+			sub_route_arr.reverse()
+			if sub_route_arr[0] == "CNX":
+				has_cnx = True
+			if sub_route_arr[0] == "CNF":
+				has_cnf = True
+		if has_cnf and self.total_amount < 0:
+			self.refund = True
+		if not has_cnf and has_cnx:
+			self.cancelled = True
+			
+
+
 			
 @frappe.whitelist()
 def insert_tickets(filepath):
@@ -71,16 +89,35 @@ def insert_tickets(filepath):
 					"nationality": d.natationality if d.natationality else ""
 				}).insert()
 			ticket_entry.passenger = d.passenger_name
+
+			#pax name
+			ticket_entry.pax_name_type = "Pax name"
+			pn = frappe.db.get_list("Pax name", filters={"name": d["pax_name"]}, pluck="name")
+			if not pn:
+				ticket_entry.pax_name_type = "Customer"
+				pn = frappe.db.get_list("Customer", filters={"name": d["pax_name"]}, pluck="name")
+			ticket_entry.pax_name = pn[0] if pn else ""
+
+			#Account Code
+			account = frappe.db.get_list("Account", filters={"account_number": d["account_code"]}, pluck="name")
+			if account:
+				customer = frappe.db.get_list("Party Account", filters={"parenttype": "Customer", "account": account[0]}, pluck="parent")
+				if customer:
+					ticket_entry.customer = customer[0]
+					
+			#standard fields
+			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "modify_amount", "total_amount", "sales", "natationality"]
+			for sf in standard_fields:
+				if sf in d:
+					setattr(ticket_entry, sf, d[sf])
+
+			#refund void
+			ticket_entry.check_void_or_refund(d.routing.strip())
 			#routing
 			routings = d.routing.split(";")
 			last_routing = None
 			for r in routings:
 				last_routing = ticket_entry.handle_routing(last_routing, r.strip())
-			#standard fields
-			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "modify_amount", "total_amount", "sales", "pax_name", "natationality", "sales_com"]
-			for sf in standard_fields:
-				if sf in d:
-					setattr(ticket_entry, sf, d[sf])
 			#non standard fields
 			if type(d.payment_date) is not str:
 				ticket_entry.payment_date = add_days("1/1/1900", d.payment_date-2)
@@ -88,7 +125,8 @@ def insert_tickets(filepath):
 				formatdate(d.payment_date, "dd-MMM-yy")
 			ticket_entry.user = d.user_name
 			ticket_entry.refund_amount = d.re_found_amount
-			ticket_entry.supp_com = d["com%"]
+			ticket_entry.sales_com = d["com%"]
+			ticket_entry.supp_com = d["sales_com"]
 			ticket_entry.currency = d["curr."]
 			ticket_entry.conversion_rate = d.rate
 			ticket_entry.insert()
