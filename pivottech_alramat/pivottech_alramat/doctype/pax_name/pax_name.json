@@ -9,7 +9,8 @@
  "field_order": [
   "name1",
   "location",
-  "contact"
+  "contact",
+  "type"
  ],
  "fields": [
   {
@@ -28,11 +29,18 @@
    "fieldtype": "Link",
    "label": "contact",
    "options": "Contact"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "\nSub-agent\nTravel office",
+   "translatable": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-01 15:09:58.193447",
+ "modified": "2022-06-11 13:10:58.304576",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "Pax name",
