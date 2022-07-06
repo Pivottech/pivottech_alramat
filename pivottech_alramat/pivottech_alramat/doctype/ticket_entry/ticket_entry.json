@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field.eticket",
  "creation": "2022-05-14 12:38:01.808413",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -14,7 +13,6 @@
   "natationality",
   "column_break_6",
   "eticket",
-  "pax_name_type",
   "pax_name",
   "column_break_9",
   "airline_company_code",
@@ -22,12 +20,14 @@
   "column_break_49",
   "payment_date",
   "payment_mode",
+  "0_column",
+  "vendor",
   "routing_section",
   "departure_date",
+  "cancelled",
   "column_break_11",
   "departure_routing",
   "refund",
-  "cancelled",
   "column_break_10",
   "departure_flight_no",
   "column_break_12",
@@ -55,17 +55,15 @@
   "profit",
   "commission_section",
   "discount",
+  "commission_",
   "column_break_46",
   "supp_com",
   "sales_com",
   "column_break_40",
-  "commission_",
   "user",
   "user_commission",
   "eticket_refund",
-  "last_eticket",
-  "items_section",
-  "items"
+  "last_eticket"
  ],
  "fields": [
   {
@@ -77,6 +75,7 @@
   {
    "fieldname": "passenger",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "passenger",
    "options": "passenger name"
   },
@@ -87,9 +86,9 @@
   },
   {
    "fieldname": "pax_name",
-   "fieldtype": "Dynamic Link",
+   "fieldtype": "Link",
    "label": "Pax Name",
-   "options": "pax_name_type"
+   "options": "Customer"
   },
   {
    "fieldname": "payment_date",
@@ -108,8 +107,8 @@
   {
    "fieldname": "eticket",
    "fieldtype": "Data",
-   "label": "E.ticket",
-   "unique": 1
+   "in_standard_filter": 1,
+   "label": "E.ticket"
   },
   {
    "fieldname": "airline_company_code",
@@ -118,7 +117,7 @@
    "options": "Airline Code"
   },
   {
-   "fetch_from": "code.airline_company",
+   "fetch_from": "airline_company_code.airline_company",
    "fieldname": "airline_company",
    "fieldtype": "Data",
    "label": "Airline company"
@@ -289,17 +288,6 @@
    "label": "user commission "
   },
   {
-   "fieldname": "items_section",
-   "fieldtype": "Section Break",
-   "label": "Items"
-  },
-  {
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "label": "items",
-   "options": "Sales Invoice Item"
-  },
-  {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
   },
@@ -310,13 +298,6 @@
   {
    "fieldname": "column_break_49",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "pax_name_type",
-   "fieldtype": "Select",
-   "hidden": 1,
-   "label": "Pax Name Type",
-   "options": "Pax name\nCustomer"
   },
   {
    "default": "0",
@@ -366,14 +347,25 @@
    "fieldname": "cancelled",
    "fieldtype": "Check",
    "label": "Void"
+  },
+  {
+   "fieldname": "vendor",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "0_column",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-11 13:08:07.626273",
+ "modified": "2022-07-05 13:37:51.609331",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",
+ "name_case": "Title Case",
  "owner": "Administrator",
  "permissions": [
   {
@@ -389,6 +381,7 @@
    "write": 1
   }
  ],
+ "search_fields": "passenger,eticket",
  "sort_field": "modified",
  "sort_order": "DESC",
  "title_field": "pnr"

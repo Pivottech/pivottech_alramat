@@ -12,6 +12,30 @@ from frappe.utils import flt, add_days, formatdate
 from frappe import _
 
 class ticketEntry(Document):
+	def validate(self):
+		self.validate_discount()
+		self.validate_commission()
+		self.calculate_totals()
+		self.validate_duplicate_e_ticket()
+	def validate_discount(self):
+		if not self.discount:
+			self.discount = flt(self.fare_amount) * flt(self.sales_com) /100
+	def validate_commission(self):
+		if not self.commission_:
+			self.commission_ = flt(self.fare_amount) * flt(self.supp_com) /100
+	def calculate_totals(self):
+		self.total_amount = flt(self.tax_amount) + flt(self.charge_amount) + flt(self.fare_amount) + flt(self.modify_amount)
+		self.net_price = flt(self.total_amount) - self.commission_
+		self.sales = flt(flt(self.total_amount) - self.discount, -2)
+		self.profit = flt(flt(self.sales) - flt(self.net_price))
+
+	def validate_duplicate_e_ticket(self):
+		if(frappe.db.exists("ticket Entry", {"eticket": self.eticket, "total_amount":[">", 0]})):
+			if self.total_amount > 0:
+				frappe.throw("Cannot add Dublicate E Ticket with Possitive Total Amount for Pnr: %s"%flt(self.pnr, 0))
+			else:
+				frappe.msgprint("Dublicate E Ticket for Pnr: %s"%flt(self.pnr, 0))
+		
 	def has_back(self):
 		#check if this ticket has back(return) journey or not 
 		return self.back_date and self.back_routing and self.back_flight_no
@@ -67,18 +91,22 @@ def insert_tickets(filepath):
 	data = read_excel(filepath)
 	count = 0
 	for row in data:
-		count += 1
 		d = frappe._dict(row)
-		ticket_entry = frappe.new_doc("ticket Entry")
+		unfilled_fields = validate_excel_row(d)
+		if unfilled_fields:
+			frappe.throw("Some Fields are Required in Excel File: "+unfilled_fields)
+		count += 1
+		ticket_entry = frappe.get_doc({"doctype": "ticket Entry"})
 		if d.pnr:
 			frappe.publish_progress(count*100/len(data), title=_("Importing Ticket Entries"), description = d.pnr)
 			d.e_ticket = str(d.e_ticket)
 			e_tickets = d.e_ticket.split("-")
+			e_tickets = handle_e_tickets(e_tickets)
 			etickets_float = [flt(et[3:],0) for et in e_tickets]
 			#pnr
 			ticket_entry.pnr = d.pnr
 			#E-Ticket
-			ticket_entry.airline_company_code = d.e_ticket[0:3]
+			ticket_entry.airline_company_code = e_tickets[0][0:3]
 			ticket_entry.airline_company = frappe.db.get_value("Airline Code", d.e_ticket[0:3], "airline_company")
 			ticket_entry.eticket = str(max(etickets_float))
 			#Passenger
@@ -91,22 +119,19 @@ def insert_tickets(filepath):
 			ticket_entry.passenger = d.passenger_name
 
 			#pax name
-			ticket_entry.pax_name_type = "Pax name"
-			pn = frappe.db.get_list("Pax name", filters={"name": d["pax_name"]}, pluck="name")
-			if not pn:
-				ticket_entry.pax_name_type = "Customer"
-				pn = frappe.db.get_list("Customer", filters={"name": d["pax_name"]}, pluck="name")
+			pn = frappe.db.get_list("Customer", filters={"name": d["pax_name"]}, pluck="name")
 			ticket_entry.pax_name = pn[0] if pn else ""
+			
+			#Customer
+			customer = frappe.get_list("Customer", filters={"email_id": d["account_code"], "default_currency": d["curr."]}, fields=["name"])
+			if customer: 
+				ticket_entry.customer = customer[0].name
 
-			#Account Code
-			account = frappe.db.get_list("Account", filters={"account_number": d["account_code"]}, pluck="name")
-			if account:
-				customer = frappe.db.get_list("Party Account", filters={"parenttype": "Customer", "account": account[0]}, pluck="parent")
-				if customer:
-					ticket_entry.customer = customer[0]
-					
+			#Supplier
+			ticket_entry.vendor = frappe.db.get_value("Supplier", {"code": d["vendor"]}, "name")
+
 			#standard fields
-			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "modify_amount", "total_amount", "sales", "natationality"]
+			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "total_amount", "modify_amount", "sales", "natationality"]
 			for sf in standard_fields:
 				if sf in d:
 					setattr(ticket_entry, sf, d[sf])
@@ -128,7 +153,7 @@ def insert_tickets(filepath):
 			ticket_entry.sales_com = d["com%"]
 			ticket_entry.supp_com = d["sales_com"]
 			ticket_entry.currency = d["curr."]
-			ticket_entry.conversion_rate = d.rate
+			ticket_entry.conversion_rate = d["rate"]
 			ticket_entry.insert()
 	frappe.publish_progress(100, title=_("Importing Ticket Entries"))
 			
@@ -185,7 +210,17 @@ def remove_extra_rows(rows):
 def check_if_header(row):
 	return "PNR" in row and "E-Ticket" in row and "Passenger Name" in row
 
-
+def handle_e_tickets(e_tickets):
+	#if e ticket has less than 13 charachters it will add zeros at the first
+	new_list = []
+	for et in e_tickets:
+		et = str(flt(et, 0))
+		char_diff = 13 - len(et)
+		if char_diff:
+			et = str(char_diff*"0" + str(et))
+			
+		new_list.append(et)
+	return new_list
 	
 #08-APR-22 DAM/NJF 6Q511 CNX ; OPEN RETURN  NJF/DAM 6Q512 CNX
 def reverse_routing(r):
@@ -197,3 +232,9 @@ def reverse_routing(r):
 	rs.reverse()
 	return "/".join(rs)
 	
+def validate_excel_row(d):
+	res = []
+	for i in ["pnr", "e_ticket", "passenger_name", "routing", "pax_name", "total_amount"]:
+		if i not in d:
+			res.append(i)
+	return ",".join(res)

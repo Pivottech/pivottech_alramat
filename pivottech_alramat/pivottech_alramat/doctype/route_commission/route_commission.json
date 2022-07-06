@@ -1,0 +1,62 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2022-07-04 11:00:15.613173",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "rout",
+  "route",
+  "arrival",
+  "com",
+  "source1",
+  "discount"
+ ],
+ "fields": [
+  {
+   "fieldname": "rout",
+   "fieldtype": "Heading",
+   "label": "Except"
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Link",
+   "label": "Departure",
+   "options": "Air flight path"
+  },
+  {
+   "fieldname": "com",
+   "fieldtype": "Percent",
+   "label": "com%"
+  },
+  {
+   "fieldname": "source1",
+   "fieldtype": "Select",
+   "label": "source",
+   "options": "\nTotal\nFare"
+  },
+  {
+   "fieldname": "discount",
+   "fieldtype": "Data",
+   "label": "Discount"
+  },
+  {
+   "fieldname": "arrival",
+   "fieldtype": "Link",
+   "label": "Arrival",
+   "options": "Air flight path"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-07-04 11:17:43.723685",
+ "modified_by": "Administrator",
+ "module": "Pivottech Alramat",
+ "name": "route commission",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

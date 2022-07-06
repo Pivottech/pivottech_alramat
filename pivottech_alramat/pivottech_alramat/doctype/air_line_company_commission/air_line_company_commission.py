@@ -4,5 +4,5 @@
 # import frappe
 from frappe.model.document import Document
 
-class Class(Document):
+class air_line_company_airlinecompanycommission(Document):
 	pass

@@ -29,12 +29,12 @@
   {
    "fieldname": "from",
    "fieldtype": "Data",
-   "label": "From"
+   "label": "Departure"
   },
   {
    "fieldname": "to",
    "fieldtype": "Data",
-   "label": "To"
+   "label": "Arrival"
   },
   {
    "fieldname": "more_info",
@@ -49,7 +49,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-14 12:37:07.550842",
+ "modified": "2022-07-04 10:56:55.118304",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "Air flight path",

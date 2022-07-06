@@ -4,5 +4,5 @@
 # import frappe
 from frappe.model.document import Document
 
-class subagent(Document):
+class routecommission(Document):
 	pass
