@@ -56,14 +56,16 @@
   "commission_section",
   "discount",
   "commission_",
-  "column_break_46",
-  "supp_com",
-  "sales_com",
+  "edit_commissions",
   "column_break_40",
+  "sales_com",
+  "supp_com",
+  "column_break_46",
   "user",
   "user_commission",
   "eticket_refund",
-  "last_eticket"
+  "last_eticket",
+  "status"
  ],
  "fields": [
   {
@@ -266,12 +268,14 @@
   {
    "fieldname": "supp_com",
    "fieldtype": "Percent",
-   "label": "SUPP COM%"
+   "label": "SUPP COM%",
+   "read_only_depends_on": "eval:!doc.edit_commissions"
   },
   {
    "fieldname": "sales_com",
    "fieldtype": "Percent",
-   "label": "SALES COM%"
+   "label": "SALES COM%",
+   "read_only_depends_on": "eval:!doc.edit_commissions"
   },
   {
    "fieldname": "column_break_40",
@@ -279,13 +283,9 @@
   },
   {
    "fieldname": "user",
-   "fieldtype": "Data",
-   "label": "User"
-  },
-  {
-   "fieldname": "user_commission",
-   "fieldtype": "Data",
-   "label": "user commission "
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "Employee"
   },
   {
    "fieldname": "column_break_6",
@@ -314,7 +314,8 @@
   {
    "fieldname": "discount",
    "fieldtype": "Float",
-   "label": "Discount"
+   "label": "Discount",
+   "read_only_depends_on": "eval:!doc.edit_commissions"
   },
   {
    "fieldname": "eticket_refund",
@@ -330,7 +331,8 @@
   {
    "fieldname": "commission_",
    "fieldtype": "Float",
-   "label": "Commission "
+   "label": "Commission ",
+   "read_only_depends_on": "eval:!doc.edit_commissions"
   },
   {
    "fieldname": "profit",
@@ -357,11 +359,31 @@
   {
    "fieldname": "0_column",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "edit_commissions",
+   "fieldtype": "Check",
+   "label": "Edit Commissions"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "\nDraft\nHold\nInvoiced"
+  },
+  {
+   "fieldname": "user_commission",
+   "fieldtype": "Float",
+   "label": "User Commission",
+   "read_only_depends_on": "eval:!doc.edit_commissions"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-05 13:37:51.609331",
+ "modified": "2022-07-25 12:55:40.652202",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",

@@ -11,7 +11,8 @@
   "arrival",
   "com",
   "source1",
-  "discount"
+  "discount",
+  "airline_company"
  ],
  "fields": [
   {
@@ -46,12 +47,18 @@
    "fieldtype": "Link",
    "label": "Arrival",
    "options": "Air flight path"
+  },
+  {
+   "fieldname": "airline_company",
+   "fieldtype": "Link",
+   "label": "Airline company",
+   "options": "Airline Code"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-07-04 11:17:43.723685",
+ "modified": "2022-07-07 10:26:06.541362",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "route commission",

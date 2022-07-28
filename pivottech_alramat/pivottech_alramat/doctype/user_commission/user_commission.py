@@ -4,5 +4,5 @@
 # import frappe
 from frappe.model.document import Document
 
-class Commissionlevel(Document):
+class usercommission(Document):
 	pass

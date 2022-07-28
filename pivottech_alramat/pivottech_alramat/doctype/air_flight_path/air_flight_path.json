@@ -7,12 +7,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "air_flight_path",
   "code",
-  "from",
-  "to",
-  "more_info",
-  "suppcom"
+  "air_flight_path"
  ],
  "fields": [
   {
@@ -25,31 +21,11 @@
    "fieldname": "code",
    "fieldtype": "Data",
    "label": "Code"
-  },
-  {
-   "fieldname": "from",
-   "fieldtype": "Data",
-   "label": "Departure"
-  },
-  {
-   "fieldname": "to",
-   "fieldtype": "Data",
-   "label": "Arrival"
-  },
-  {
-   "fieldname": "more_info",
-   "fieldtype": "Data",
-   "label": "More Info"
-  },
-  {
-   "fieldname": "suppcom",
-   "fieldtype": "Percent",
-   "label": "SUPPCOM"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-04 10:56:55.118304",
+ "modified": "2022-07-23 11:59:59.686382",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "Air flight path",
