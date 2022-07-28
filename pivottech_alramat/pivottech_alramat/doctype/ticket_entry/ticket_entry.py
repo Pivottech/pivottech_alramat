@@ -13,21 +13,31 @@ from frappe import _
 
 class ticketEntry(Document):
 	def validate(self):
-		self.validate_discount()
-		self.validate_commission()
-		self.calculate_totals()
 		if not self.edit_commissions: 
 			self.calculate_discount()
 			self.calculate_commission()
 			self.calculate_user_commission()
+		else:
+			self.validate_discount()
+			self.validate_commission()
+		self.calculate_totals()
 	
 	def before_insert(self):
 		self.validate_duplicate_e_ticket()
 
 	def validate_discount(self):
-		if not self.discount:
-			self.discount = flt(self.fare_amount) * flt(self.sales_com) /100
+		amount = self.total_amount if self.from_total else self.fare_amount
+		if self.sales_com:
+			self.discount = flt(amount) * flt(self.sales_com) /100
+		if self.discount:
+			self.sales_com = flt(self.discount) * 100 / flt(amount)
 	
+	def validate_commission(self):
+		amount = self.total_amount if self.from_total else self.fare_amount
+		if self.supp_com:
+			self.commission_ = flt(amount) * flt(self.supp_com) /100
+		elif self.commission_:
+			self.supp_com = flt(self.commission_) * 100 / flt(amount) 
 
 	def calculate_discount(self):
 		custoemr_comms = frappe.get_list("air line company commission", filters={
@@ -80,17 +90,17 @@ class ticketEntry(Document):
 				if arriaval_comms:
 					supplier_level = frappe.get_doc("air line company commission", arriaval_comms[0])
 					total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
-					self.commission_ = flt(supplier_level.discount) * 100 / (flt(supplier_level.com) * flt(total)/100)
+					self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
 					self.supp_com = self.commission_ * 100 / total
 				else:
 					supplier_level = frappe.get_doc("air line company commission", departure_comms[0])
 					total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
-					self.commission_ = flt(supplier_level.discount) * 100 / (flt(supplier_level.com) * flt(total)/100)
+					self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
 					self.supp_com = self.commission_ * 100 / total
 			else:
 				supplier_level = frappe.get_doc("air line company commission", supplier_comms[0])
 				total = self.fare_amount if supplier_level.source == "Fare" else self.total_amount
-				self.commission_ = flt(supplier_level.dis_com) * 100 / (flt(supplier_level.com_company) * flt(total)/100)
+				self.commission_ = flt(total) * flt(supplier_level.com_company) / 100 + flt(supplier_level.dis_com)
 				self.supp_com = self.commission_ * 100 / total
 	
 	def calculate_user_commission(self):
@@ -112,21 +122,15 @@ class ticketEntry(Document):
 				})
 				if arriaval_comms:
 					employee_level = frappe.get_doc("user commission", arriaval_comms[0])
-					total = self.fare_amount if employee_level.sourcerouting == "Fare" else self.total_amount
-					self.user_commission = flt(self.profit) * flt(employee_level.com) /100 + flt(employee_level.discount)
+					self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
 				else:
 					employee_level = frappe.get_doc("user commission", departure_comms[0])
-					total = self.fare_amount if employee_level.sourcerouting == "Fare" else self.total_amount
-					self.user_commission = flt(self.profit) * flt(employee_level.com) /100 + flt(employee_level.discount)
+					self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
 			else:
 				employee_level = frappe.get_doc("user commission", employee_comms[0])
-				total = self.fare_amount if employee_level.source == "Fare" else self.total_amount
-				self.user_commission = flt(self.profit) * flt(employee_level.com_company) /100 + flt(employee_level.dis_com)
+				self.user_commission = flt(self.profit) * flt(employee_level.com_company) /100 if flt(employee_level.com_company) else flt(employee_level.dis_com)
 				
 				
-	def validate_commission(self):
-		if not self.commission_:
-			self.commission_ = flt(self.fare_amount) * flt(self.supp_com) /100
 	def calculate_totals(self):
 		self.total_amount = flt(self.tax_amount) + flt(self.charge_amount) + flt(self.fare_amount) + flt(self.modify_amount)
 		self.net_price = flt(self.total_amount) - self.commission_
