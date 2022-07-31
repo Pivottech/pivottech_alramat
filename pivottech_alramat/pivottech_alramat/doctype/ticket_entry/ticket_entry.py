@@ -40,108 +40,111 @@ class ticketEntry(Document):
 			self.supp_com = flt(self.commission_) * 100 / flt(amount) 
 
 	def calculate_discount(self):
-		custoemr_comms = frappe.get_list("air line company commission", filters={
-			"supplier": self.vendor,
-			"airline_company": self.airline_company_code,
-			"parenttype": "Customer level"
-		}, pluck="name")
-		if custoemr_comms:
-			departure_comms = frappe.get_list("air line company commission", filters={
-				"name":["in", custoemr_comms],
-				"departure": ["like", self.departure_routing.split("/")[0]]
+		if self.customer and self.vendor:
+			custoemr_comms = frappe.get_list("air line company commission", filters={
+				"supplier": self.vendor,
+				"airline_company": self.airline_company_code,
+				"parenttype": "Customer level"
 			}, pluck="name")
-			if departure_comms:
-				arriaval_comms = frappe.get_list("air line company commission", filters={
-					"name":["in", departure_comms],
-					"arrival": ["like", self.departure_routing.split("/")[-1]]
-				})
-				if arriaval_comms:
-					custoemr_level = frappe.get_doc("air line company commission", arriaval_comms[0])
-					total = self.fare_amount if custoemr_level.sourcerouting == "Fare" else self.total_amount
-					self.discount = flt(total) * flt(custoemr_level.com)/100 + flt(custoemr_level.discount)
-					self.sales_com = self.discount * 100 / total
+			if custoemr_comms:
+				departure_comms = frappe.get_list("air line company commission", filters={
+					"name":["in", custoemr_comms],
+					"departure": ["like", self.departure_routing.split("/")[0]]
+				}, pluck="name")
+				if departure_comms:
+					arriaval_comms = frappe.get_list("air line company commission", filters={
+						"name":["in", departure_comms],
+						"arrival": ["like", self.departure_routing.split("/")[-1]]
+					})
+					if arriaval_comms:
+						custoemr_level = frappe.get_doc("air line company commission", arriaval_comms[0])
+						total = self.fare_amount if custoemr_level.sourcerouting == "Fare" else self.total_amount
+						self.discount = flt(total) * flt(custoemr_level.com)/100 + flt(custoemr_level.discount)
+						self.sales_com = self.discount * 100 / total
+					else:
+						custoemr_level = frappe.get_doc("air line company commission", departure_comms[0])
+						total = self.fare_amount if custoemr_level.sourcerouting == "Fare" else self.total_amount
+						self.discount = flt(total) * flt(custoemr_level.com)/100 + flt(custoemr_level.discount)
+						self.sales_com = self.discount * 100 / total
 				else:
-					custoemr_level = frappe.get_doc("air line company commission", departure_comms[0])
-					total = self.fare_amount if custoemr_level.sourcerouting == "Fare" else self.total_amount
-					self.discount = flt(total) * flt(custoemr_level.com)/100 + flt(custoemr_level.discount)
+					custoemr_level = frappe.get_doc("air line company commission", custoemr_comms[0])
+					total = self.fare_amount if custoemr_level.source == "Fare" else self.total_amount
+					self.discount = flt(total) * flt(custoemr_level.com_company) / 100 + flt(custoemr_level.dis_com)
 					self.sales_com = self.discount * 100 / total
-			else:
-				custoemr_level = frappe.get_doc("air line company commission", custoemr_comms[0])
-				total = self.fare_amount if custoemr_level.source == "Fare" else self.total_amount
-				self.discount = flt(total) * flt(custoemr_level.com_company) / 100 + flt(custoemr_level.dis_com)
-				self.sales_com = self.discount * 100 / total
 				
 	def calculate_commission(self):
-		supplier_comms = frappe.get_list("air line company commission", filters={
-			"parenttype": "Supplier",
-			"airline_company": self.airline_company_code,
-			"parent": self.vendor
-		}, pluck="name")
-		if supplier_comms:
-			departure_comms = frappe.get_list("air line company commission", filters={
-				"name":["in", supplier_comms],
-				"departure": ["like", self.departure_routing.split("/")[0]]
+		if self.vendor:
+			supplier_comms = frappe.get_list("air line company commission", filters={
+				"parenttype": "Supplier",
+				"airline_company": self.airline_company_code,
+				"parent": self.vendor
 			}, pluck="name")
-			if departure_comms:
-				arriaval_comms = frappe.get_list("air line company commission", filters={
-					"name":["in", departure_comms],
-					"arrival": ["like", self.departure_routing.split("/")[-1]]
-				})
-				if arriaval_comms:
-					supplier_level = frappe.get_doc("air line company commission", arriaval_comms[0])
-					total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
-					self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
-					self.supp_com = self.commission_ * 100 / total
+			if supplier_comms:
+				departure_comms = frappe.get_list("air line company commission", filters={
+					"name":["in", supplier_comms],
+					"departure": ["like", self.departure_routing.split("/")[0]]
+				}, pluck="name")
+				if departure_comms:
+					arriaval_comms = frappe.get_list("air line company commission", filters={
+						"name":["in", departure_comms],
+						"arrival": ["like", self.departure_routing.split("/")[-1]]
+					})
+					if arriaval_comms:
+						supplier_level = frappe.get_doc("air line company commission", arriaval_comms[0])
+						total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
+						self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
+						self.supp_com = self.commission_ * 100 / total
+					else:
+						supplier_level = frappe.get_doc("air line company commission", departure_comms[0])
+						total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
+						self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
+						self.supp_com = self.commission_ * 100 / total
 				else:
-					supplier_level = frappe.get_doc("air line company commission", departure_comms[0])
-					total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
-					self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
+					supplier_level = frappe.get_doc("air line company commission", supplier_comms[0])
+					total = self.fare_amount if supplier_level.source == "Fare" else self.total_amount
+					self.commission_ = flt(total) * flt(supplier_level.com_company) / 100 + flt(supplier_level.dis_com)
 					self.supp_com = self.commission_ * 100 / total
-			else:
-				supplier_level = frappe.get_doc("air line company commission", supplier_comms[0])
-				total = self.fare_amount if supplier_level.source == "Fare" else self.total_amount
-				self.commission_ = flt(total) * flt(supplier_level.com_company) / 100 + flt(supplier_level.dis_com)
-				self.supp_com = self.commission_ * 100 / total
 	
 	def calculate_user_commission(self):
-		employee_comms = frappe.get_list("user commission", filters={
-			"parenttype": "Employee",
-			"airline_company": self.airline_company_code,
-			"supplier": self.vendor,
-			"parent": self.user
-		}, pluck="name")
-		if employee_comms:
-			departure_comms = frappe.get_list("user commission", filters={
-				"name":["in", employee_comms],
-				"departure": ["like", self.departure_routing.split("/")[0]]
+		if self.user and self.vendor:
+			employee_comms = frappe.get_list("user commission", filters={
+				"parenttype": "Employee",
+				"airline_company": self.airline_company_code,
+				"supplier": self.vendor,
+				"parent": self.user
 			}, pluck="name")
-			if departure_comms:
-				arriaval_comms = frappe.get_list("user commission", filters={
-					"name":["in", departure_comms],
-					"arrival": ["like", self.departure_routing.split("/")[-1]]
-				})
-				if arriaval_comms:
-					employee_level = frappe.get_doc("user commission", arriaval_comms[0])
-					self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
+			if employee_comms:
+				departure_comms = frappe.get_list("user commission", filters={
+					"name":["in", employee_comms],
+					"departure": ["like", self.departure_routing.split("/")[0]]
+				}, pluck="name")
+				if departure_comms:
+					arriaval_comms = frappe.get_list("user commission", filters={
+						"name":["in", departure_comms],
+						"arrival": ["like", self.departure_routing.split("/")[-1]]
+					})
+					if arriaval_comms:
+						employee_level = frappe.get_doc("user commission", arriaval_comms[0])
+						self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
+					else:
+						employee_level = frappe.get_doc("user commission", departure_comms[0])
+						self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
 				else:
-					employee_level = frappe.get_doc("user commission", departure_comms[0])
-					self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
-			else:
-				employee_level = frappe.get_doc("user commission", employee_comms[0])
-				self.user_commission = flt(self.profit) * flt(employee_level.com_company) /100 if flt(employee_level.com_company) else flt(employee_level.dis_com)
+					employee_level = frappe.get_doc("user commission", employee_comms[0])
+					self.user_commission = flt(self.profit) * flt(employee_level.com_company) /100 if flt(employee_level.com_company) else flt(employee_level.dis_com)
 				
 				
 	def calculate_totals(self):
 		self.total_amount = flt(self.tax_amount) + flt(self.charge_amount) + flt(self.fare_amount) + flt(self.modify_amount)
-		self.net_price = flt(self.total_amount) - self.commission_
+		self.net_price = flt(self.total_amount) - flt(self.commission_)
 		if self.total_amount and self.discount:
-			self.sales = flt(flt(self.total_amount) - self.discount, -2)
+			self.sales = flt(flt(self.total_amount) - flt(self.discount), -2)
 		if self.sales and self.net_price:
 			self.profit = flt(flt(self.sales) - flt(self.net_price))
 
 	def validate_duplicate_e_ticket(self):
-		if(frappe.db.exists("ticket Entry", {"eticket": self.eticket, "total_amount":[">=", 0]})):
-			if flt(self.total_amount) >= 0:
+		if(frappe.db.exists("ticket Entry", {"eticket": self.eticket, "total_amount":[">", 0]})):
+			if flt(self.total_amount) > 0:
 				frappe.throw("Cannot add Dublicate E Ticket with Possitive Total Amount for e-ticket: %s"%self.eticket)
 			else:
 				frappe.msgprint("Dublicate E Ticket for e-ticket: %s"%self.eticket)
@@ -216,7 +219,7 @@ def insert_tickets(filepath):
 			#E-Ticket
 			from_sales_order_et = frappe.get_list("ticket Entry", filters={
 				"eticket": str(max(etickets_float)),
-				"status": "Draft"
+				"status": "Hold"
 			}, pluck="name")
 			if from_sales_order_et:
 				ticket_entry = frappe.get_doc("ticket Entry", from_sales_order_et[0])
@@ -266,13 +269,19 @@ def insert_tickets(filepath):
 				ticket_entry.payment_date = add_days("1/1/1900", d.payment_date-2)
 			else:
 				formatdate(d.payment_date, "dd-MMM-yy")
-			ticket_entry.user = d.user_name
+			
+			#user
+			user = frappe.get_list("Employee", filters=
+				{"employee_name": d.user},
+				fields=["name"])
+			if user:
+				ticket_entry.user = user[0].name
 			ticket_entry.refund_amount = d.re_found_amount
-			ticket_entry.sales_com = d["com%"]
-			ticket_entry.supp_com = d["sales_com"]
+			#ticket_entry.sales_com = d["com%"]
+			#ticket_entry.supp_com = d["sales_com"]
 			ticket_entry.currency = d["curr."]
 			ticket_entry.conversion_rate = d["rate"]
-			ticket_entry.status = "Draft"
+			ticket_entry.status = "Saved"
 			if from_sales_order_et:
 				ticket_entry.save()
 			else:

@@ -372,7 +372,7 @@
    "hidden": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nDraft\nHold\nInvoiced"
+   "options": "\nSaved\nHold\nInvoiced"
   },
   {
    "fieldname": "user_commission",
@@ -383,7 +383,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-25 12:55:40.652202",
+ "modified": "2022-07-30 14:44:33.011533",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",
