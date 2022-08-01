@@ -41,36 +41,17 @@ class ticketEntry(Document):
 
 	def calculate_discount(self):
 		if self.customer and self.vendor:
-			custoemr_comms = frappe.get_list("air line company commission", filters={
+			customer_level = frappe.db.get_value("Customer", self.customer, "commission_level")
+			customer_comms = frappe.get_list("air line company commission", filters={
+				"parenttype": "Customer level",
+				"parent": customer_level,
 				"supplier": self.vendor,
-				"airline_company": self.airline_company_code,
-				"parenttype": "Customer level"
+				"airline_company": self.airline_company_code
 			}, pluck="name")
-			if custoemr_comms:
-				departure_comms = frappe.get_list("air line company commission", filters={
-					"name":["in", custoemr_comms],
-					"departure": ["like", self.departure_routing.split("/")[0]]
-				}, pluck="name")
-				if departure_comms:
-					arriaval_comms = frappe.get_list("air line company commission", filters={
-						"name":["in", departure_comms],
-						"arrival": ["like", self.departure_routing.split("/")[-1]]
-					})
-					if arriaval_comms:
-						custoemr_level = frappe.get_doc("air line company commission", arriaval_comms[0])
-						total = self.fare_amount if custoemr_level.sourcerouting == "Fare" else self.total_amount
-						self.discount = flt(total) * flt(custoemr_level.com)/100 + flt(custoemr_level.discount)
-						self.sales_com = self.discount * 100 / total
-					else:
-						custoemr_level = frappe.get_doc("air line company commission", departure_comms[0])
-						total = self.fare_amount if custoemr_level.sourcerouting == "Fare" else self.total_amount
-						self.discount = flt(total) * flt(custoemr_level.com)/100 + flt(custoemr_level.discount)
-						self.sales_com = self.discount * 100 / total
-				else:
-					custoemr_level = frappe.get_doc("air line company commission", custoemr_comms[0])
-					total = self.fare_amount if custoemr_level.source == "Fare" else self.total_amount
-					self.discount = flt(total) * flt(custoemr_level.com_company) / 100 + flt(custoemr_level.dis_com)
-					self.sales_com = self.discount * 100 / total
+			commission = get_discount_or_commission(customer_comms, self.departure_routing)
+			total = self.fare_amount if commission.sourcerouting == "Fare" else self.total_amount
+			self.discount = flt(total) * flt(commission.com)/100 + flt(commission.discount)
+			self.sales_com = self.discount * 100 / total
 				
 	def calculate_commission(self):
 		if self.vendor:
@@ -79,31 +60,10 @@ class ticketEntry(Document):
 				"airline_company": self.airline_company_code,
 				"parent": self.vendor
 			}, pluck="name")
-			if supplier_comms:
-				departure_comms = frappe.get_list("air line company commission", filters={
-					"name":["in", supplier_comms],
-					"departure": ["like", self.departure_routing.split("/")[0]]
-				}, pluck="name")
-				if departure_comms:
-					arriaval_comms = frappe.get_list("air line company commission", filters={
-						"name":["in", departure_comms],
-						"arrival": ["like", self.departure_routing.split("/")[-1]]
-					})
-					if arriaval_comms:
-						supplier_level = frappe.get_doc("air line company commission", arriaval_comms[0])
-						total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
-						self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
-						self.supp_com = self.commission_ * 100 / total
-					else:
-						supplier_level = frappe.get_doc("air line company commission", departure_comms[0])
-						total = self.fare_amount if supplier_level.sourcerouting == "Fare" else self.total_amount
-						self.commission_ = flt(total) * flt(supplier_level.com)/100 + flt(supplier_level.discount)
-						self.supp_com = self.commission_ * 100 / total
-				else:
-					supplier_level = frappe.get_doc("air line company commission", supplier_comms[0])
-					total = self.fare_amount if supplier_level.source == "Fare" else self.total_amount
-					self.commission_ = flt(total) * flt(supplier_level.com_company) / 100 + flt(supplier_level.dis_com)
-					self.supp_com = self.commission_ * 100 / total
+			commission = get_discount_or_commission(supplier_comms, self.departure_routing)
+			total = self.fare_amount if commission.sourcerouting == "Fare" else self.total_amount
+			self.commission_ = flt(total) * flt(commission.com)/100 + flt(commission.discount)
+			self.supp_com = self.commission_ * 100 / total
 	
 	def calculate_user_commission(self):
 		if self.user and self.vendor:
@@ -195,10 +155,35 @@ class ticketEntry(Document):
 			self.refund = True
 		if not has_cnf and has_cnx:
 			self.cancelled = True
-			
 
 
-			
+def get_discount_or_commission(commissions, routing):
+	if not commissions:
+		return frappe._dict({
+			"com": 0,
+			"discount": 0,
+			"sourcerouting": "Fare"
+		})
+	departure_arrival_comms = frappe.get_list("air line company commission", filters={
+					"name":["in", commissions],
+					"departure": ["like", routing.split("/")[0]],
+					"arrival": ["like", routing.split("/")[-1]]
+				}, fields=["name", "com", "discount", "sourcerouting"])
+	if departure_arrival_comms:
+		return departure_arrival_comms[0]
+	
+	departure_comms = frappe.get_list("air line company commission", filters={
+					"name":["in", commissions],
+					"departure": ["like", routing.split("/")[0]],
+					"arrival": ""
+				}, fields=["name", "com", "discount", "sourcerouting"])
+	if departure_comms:
+		return departure_comms[0]
+	
+	return frappe.db.get_value("air line company commission", commissions[0], ["com_company as com", "dis_com as discount", "source as sourcerouting"], as_dict=1)
+
+		
+
 @frappe.whitelist()
 def insert_tickets(filepath):
 	data = read_excel(filepath)
@@ -273,9 +258,10 @@ def insert_tickets(filepath):
 			#user
 			user = frappe.get_list("Employee", filters=
 				{"employee_name": d.user},
-				fields=["name"])
+				fields=["name", "employee_name"])
 			if user:
 				ticket_entry.user = user[0].name
+				ticket_entry.user_name = user[0].employee_name
 			ticket_entry.refund_amount = d.re_found_amount
 			#ticket_entry.sales_com = d["com%"]
 			#ticket_entry.supp_com = d["sales_com"]

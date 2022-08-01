@@ -61,6 +61,7 @@
   "sales_com",
   "supp_com",
   "column_break_46",
+  "user_name",
   "user",
   "user_commission",
   "eticket_refund",
@@ -379,11 +380,17 @@
    "fieldtype": "Float",
    "label": "User Commission",
    "read_only_depends_on": "eval:!doc.edit_commissions"
+  },
+  {
+   "fetch_from": "user.employee_name",
+   "fieldname": "user_name",
+   "fieldtype": "Data",
+   "label": "user name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-30 14:44:33.011533",
+ "modified": "2022-08-01 13:11:28.756711",
  "modified_by": "Administrator",
  "module": "Pivottech Alramat",
  "name": "ticket Entry",
