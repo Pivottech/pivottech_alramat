@@ -13,14 +13,16 @@ from frappe import _
 
 class ticketEntry(Document):
 	def validate(self):
+		self.total_amount = flt(self.tax_amount) + flt(self.charge_amount) + flt(self.fare_amount) + flt(self.modify_amount)
 		if not self.edit_commissions: 
 			self.calculate_discount()
 			self.calculate_commission()
+			self.calculate_totals()
 			self.calculate_user_commission()
 		else:
 			self.validate_discount()
 			self.validate_commission()
-		self.calculate_totals()
+			self.calculate_totals()
 	
 	def before_insert(self):
 		self.validate_duplicate_e_ticket()
@@ -73,29 +75,10 @@ class ticketEntry(Document):
 				"supplier": self.vendor,
 				"parent": self.user
 			}, pluck="name")
-			if employee_comms:
-				departure_comms = frappe.get_list("user commission", filters={
-					"name":["in", employee_comms],
-					"departure": ["like", self.departure_routing.split("/")[0]]
-				}, pluck="name")
-				if departure_comms:
-					arriaval_comms = frappe.get_list("user commission", filters={
-						"name":["in", departure_comms],
-						"arrival": ["like", self.departure_routing.split("/")[-1]]
-					})
-					if arriaval_comms:
-						employee_level = frappe.get_doc("user commission", arriaval_comms[0])
-						self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
-					else:
-						employee_level = frappe.get_doc("user commission", departure_comms[0])
-						self.user_commission = flt(self.profit) * flt(employee_level.com) /100 if flt(employee_level.com) else flt(employee_level.discount)
-				else:
-					employee_level = frappe.get_doc("user commission", employee_comms[0])
-					self.user_commission = flt(self.profit) * flt(employee_level.com_company) /100 if flt(employee_level.com_company) else flt(employee_level.dis_com)
-				
+			commission = get_user_commission(employee_comms, self.departure_routing)
+			self.user_commission = flt(self.profit) * flt(commission.com)/100  if flt(commission.com) else flt(commission.discount)	
 				
 	def calculate_totals(self):
-		self.total_amount = flt(self.tax_amount) + flt(self.charge_amount) + flt(self.fare_amount) + flt(self.modify_amount)
 		self.net_price = flt(self.total_amount) - flt(self.commission_)
 		if self.total_amount and self.discount:
 			self.sales = flt(flt(self.total_amount) - flt(self.discount), -2)
@@ -151,7 +134,7 @@ class ticketEntry(Document):
 				has_cnx = True
 			if sub_route_arr[0] == "CNF":
 				has_cnf = True
-		if has_cnf and self.total_amount < 0:
+		if has_cnf and flt(self.total_amount) < 0:
 			self.refund = True
 		if not has_cnf and has_cnx:
 			self.cancelled = True
@@ -181,6 +164,30 @@ def get_discount_or_commission(commissions, routing):
 		return departure_comms[0]
 	
 	return frappe.db.get_value("air line company commission", commissions[0], ["com_company as com", "dis_com as discount", "source as sourcerouting"], as_dict=1)
+
+def get_user_commission(commissions, routing):
+	if not commissions:
+		return frappe._dict({
+			"com": 0,
+			"discount": 0,
+		})
+	departure_arrival_comms = frappe.get_list("user commission", filters={
+					"name":["in", commissions],
+					"departure": ["like", routing.split("/")[0]],
+					"arrival": ["like", routing.split("/")[-1]]
+				}, fields=["name", "com", "discount"])
+	if departure_arrival_comms:
+		return departure_arrival_comms[0]
+	
+	departure_comms = frappe.get_list("user commission", filters={
+					"name":["in", commissions],
+					"departure": ["like", routing.split("/")[0]],
+					"arrival": ""
+				}, fields=["name", "com", "discount"])
+	if departure_comms:
+		return departure_comms[0]
+
+	return frappe.db.get_value("user commission", commissions[0], ["com_company as com", "dis_com as discount"], as_dict=1)
 
 		
 
@@ -237,7 +244,7 @@ def insert_tickets(filepath):
 			ticket_entry.vendor = frappe.db.get_value("Supplier", {"code": d["vendor"]}, "name")
 
 			#standard fields
-			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "total_amount", "modify_amount", "sales", "natationality"]
+			standard_fields = ["fare_amount", "payment_mode", "tax_amount", "charge_amount", "modify_amount", "sales", "natationality"]
 			for sf in standard_fields:
 				if sf in d:
 					setattr(ticket_entry, sf, d[sf])
